@@ -6,6 +6,7 @@
   },
   "dependencies": {
     "@angular/animations": "4.1.2",
+    "@angular/cli": "^1.2.7",
     "@angular/common": "4.1.2",
     "@angular/compiler": "4.1.2",
     "@angular/core": "4.1.2",
