@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using vega.Controllers.Resources;
 using vega.Models;
 using vega.Persistence;
+using vega.Core;
 
 namespace vega.Controllers
 {
