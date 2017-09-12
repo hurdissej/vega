@@ -7,6 +7,8 @@ using vega.Controllers.Resources;
 using vega.Models;
 using vega.Persistence;
 using vega.Core;
+using Microsoft.AspNetCore.Cors;
+using System.Collections.Generic;
 
 namespace vega.Controllers
 {
@@ -32,13 +34,15 @@ namespace vega.Controllers
                 return BadRequest(ModelState);
 
             var vehicle = mapper.Map<SaveVehicleResource, Vehicle>(vehicleResource);
-            vehicle.LastUpdate = DateTime.Now;
+            vehicle.LastUpdate =  DateTime.Now;
             repository.Add(vehicle);
             await unitofwork.CompleteAsync();
 
             vehicle = await repository.GetVehicle(vehicle.Id);
 
-            return Ok(vehicle);
+            var result = mapper.Map<Vehicle, VehicleResource>(vehicle);
+
+            return Ok(result);
         }
 
         [HttpPut("{id}")]
@@ -92,6 +96,14 @@ namespace vega.Controllers
             var result = mapper.Map<Vehicle, VehicleResource>(vehicle);
 
             return Ok(result);
+        }
+
+        [HttpGet]
+        public async Task<IEnumerable<VehicleResource>> GetVehicles()
+        {
+            var vehicle = await repository.GetVehicles();
+
+            return mapper.Map<IEnumerable<Vehicle>, IEnumerable<VehicleResource>>(vehicle);
         }
     }
 }

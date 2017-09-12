@@ -1,21 +1,16 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using vega.Models;
 
 namespace vega.Controllers.Resources
 {
-    public class MakeResource
+    public class MakeResource : KeyValuePairResource
     {
-        public int Id { get; set; }
-        
-        public string Name { get; set; }
-
         public ICollection<KeyValuePairResource> Models { get; set; }
 
         public MakeResource()
         {
             Models = new Collection<KeyValuePairResource>();
-
         }
+        
     }
 }
