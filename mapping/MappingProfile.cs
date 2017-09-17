@@ -2,6 +2,7 @@ using AutoMapper;
 using System.Linq;
 using vega.Controllers.Resources;
 using vega.Models;
+using vega.Core.Models;
 
 namespace vega.Mapping
 {
@@ -10,6 +11,8 @@ namespace vega.Mapping
         public MappingProfile()
         {
             // Domain to API Resource
+            CreateMap(typeof(QueryResult<>), typeof(QueryResultResource<>));
+            CreateMap<VehicleQueryResource, VehicleQuery>();
             CreateMap<Make, MakeResource>();
             CreateMap<Make, KeyValuePairResource>();
             CreateMap<Model, KeyValuePairResource>();

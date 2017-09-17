@@ -1,5 +1,7 @@
 <h2> New vehicle </h2>
 
+{{ vehicle | json }}
+
 <form #f="ngForm" (ngSubmit)="submit()" novalidate>
   <div class="form-group">
     <label for="make"> Make </label>

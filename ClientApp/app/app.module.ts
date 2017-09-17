@@ -5,9 +5,12 @@ import { FormsModule } from '@angular/forms';
 
 import { AppComponent } from './components/app/app.component'
 import { NavMenuComponent } from './components/navmenu/navmenu.component';
+import { PaginationComponent } from './components/shared/pagination.component';
+import { ToastyModule } from 'ng2-toasty';
 import { VehicleFormComponent } from './components/vehicle-form/vehicle-form.component';
 import { VehicleListComponent } from './components/vehicle-list/vehicle-list.component';
-import { ToastyModule } from 'ng2-toasty';
+import { ViewVehicleComponent } from './components/view-vehicle/view-vehicle.component';
+
 import { VehicleService } from './services/vehicle.service';
 
 Raven
@@ -19,8 +22,11 @@ export const sharedConfig: NgModule = {
     declarations: [
         AppComponent,
         NavMenuComponent,
+        PaginationComponent,
         VehicleFormComponent,
-        VehicleListComponent
+        VehicleListComponent,
+        ViewVehicleComponent
+
     ],
     imports: [
         FormsModule,
@@ -29,7 +35,8 @@ export const sharedConfig: NgModule = {
             { path: '', redirectTo: 'vehicles', pathMatch: 'full' },
             { path: 'vehicles', component: VehicleListComponent},
             { path: 'vehicles/new', component: VehicleFormComponent},
-            { path: 'vehicles/:id', component: VehicleFormComponent},
+            { path: 'vehicles/:id', component: ViewVehicleComponent},
+            { path: 'vehicles/edit/:id', component: VehicleFormComponent},
             { path: '**', redirectTo: 'home' }
         ])
     ],

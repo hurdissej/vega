@@ -99,6 +99,7 @@ export class VehicleFormComponent implements OnInit {
       this.vehicleService.update(this.vehicle)
       .subscribe(x => this.handleSuccess(x), error => this.handleError(error))
     } else {
+    delete this.vehicle.id;
     this.vehicleService.create(this.vehicle)
     .subscribe(x => this.handleSuccess(x), error => this.handleError(error));
   }}

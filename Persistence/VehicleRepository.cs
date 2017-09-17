@@ -1,8 +1,13 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using vega.Core;
+using vega.Extensions;
+using vega.Core.Models;
 using vega.Models;
+using System.Linq.Expressions;
+using System;
 
 namespace vega.Persistence
 {
@@ -27,14 +32,33 @@ namespace vega.Persistence
                             .ThenInclude(m => m.Make)
                             .SingleOrDefaultAsync(v => v.Id == id);
         }
-        public async Task<IEnumerable<Vehicle>> GetVehicles()
+        public async Task<QueryResult<Vehicle>> GetVehicles(VehicleQuery queryObj)
         {
-            return await context.Vehicles
+            var result = new QueryResult<Vehicle>();
+            var query = context.Vehicles
                             .Include(v => v.Features)
                             .ThenInclude(vf => vf.Feature)
                             .Include(m => m.Model)
                             .ThenInclude(m => m.Make)
-                            .ToListAsync();
+                            .AsQueryable();
+
+            if(queryObj.MakeId.HasValue)
+                query = query.Where(vega => vega.Model.MakeId == queryObj.MakeId);
+            
+            var columnsMap = new Dictionary<string, Expression<Func<Vehicle, object>>>()
+            {
+                ["make"] = v => v.Model.Make.Name,
+                ["model"] = v => v.Model.name,
+                ["contactName"] = v => v.ContactName
+            };
+
+            query = query.ApplyOrdering(queryObj,columnsMap);
+            result.TotalItems = await query.CountAsync();
+            query = query.ApplyPaging(queryObj);
+            
+            result.Items = await query.ToListAsync();
+
+            return result;
         }
 
         public void Add(Vehicle vehicle ) 
