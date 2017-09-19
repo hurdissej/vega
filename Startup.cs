@@ -12,6 +12,11 @@ using Microsoft.EntityFrameworkCore;
 using vega.Persistence;
 using vega.Core;
 using AutoMapper;
+using MediatR;
+using vega.Core.CommandHandlers;
+using FluentValidation.AspNetCore;
+using FluentValidation;
+using vega.Models;
 
 namespace WebApplicationBasic
 {
@@ -32,11 +37,13 @@ namespace WebApplicationBasic
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddMediatR();
             services.AddScoped<IVehicleRepository, VehicleRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddAutoMapper();
             // Add framework services.
-            services.AddMvc();
+            services.AddMvc().AddFluentValidation();
+            services.AddSingleton<IValidator<Vehicle>, VehicleValidation>();
             services.AddDbContext<VegaDbContext>( options => options.UseSqlServer(Configuration["ConnectionStrings:Default"]));
         }
 

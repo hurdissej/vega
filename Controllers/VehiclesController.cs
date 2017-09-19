@@ -10,6 +10,8 @@ using vega.Core;
 using Microsoft.AspNetCore.Cors;
 using System.Collections.Generic;
 using vega.Core.Models;
+using MediatR;
+using vega.Core.Commands;
 
 namespace vega.Controllers
 {
@@ -19,9 +21,11 @@ namespace vega.Controllers
         private readonly IMapper mapper;
         private readonly IVehicleRepository repository;
         private readonly IUnitOfWork unitofwork;
+        private readonly IMediator mediator;
 
-        public VehiclesController(IMapper mapper, IVehicleRepository repository, IUnitOfWork unitofwork)
+        public VehiclesController(IMapper mapper, IVehicleRepository repository, IUnitOfWork unitofwork, IMediator mediator)
         {
+            this.mediator = mediator;
             this.unitofwork = unitofwork;
             this.repository = repository;
             this.mapper = mapper;
@@ -33,13 +37,12 @@ namespace vega.Controllers
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
+            
+            var command = mapper.Map<SaveVehicleResource, SaveVehicleCommand>(vehicleResource);
 
-            var vehicle = mapper.Map<SaveVehicleResource, Vehicle>(vehicleResource);
-            vehicle.LastUpdate =  DateTime.Now;
-            repository.Add(vehicle);
-            await unitofwork.CompleteAsync();
+            var id  = await mediator.Send(command);
 
-            vehicle = await repository.GetVehicle(vehicle.Id);
+            var vehicle = await repository.GetVehicle(id.Result);
 
             var result = mapper.Map<Vehicle, VehicleResource>(vehicle);
 
@@ -70,18 +73,13 @@ namespace vega.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteVehicle(int id)
         {
-            var vehicle = await repository.GetVehicle(id, includeRelated: false);
+            var command = new DeleteVehicleCommand{
+                Id = id
+            };
 
-            if (vehicle == null)
-            {
-                return NotFound();
-            }
+            var result = await mediator.Send(command);
 
-            repository.Remove(vehicle);
-
-            await unitofwork.CompleteAsync();
-
-            return Ok(id);
+            return Ok(result);
         }
 
         [HttpGet("{id}")]
@@ -97,7 +95,7 @@ namespace vega.Controllers
             var result = mapper.Map<Vehicle, VehicleResource>(vehicle);
 
             return Ok(result);
-        } 
+        }
 
         [HttpGet]
         public async Task<QueryResultResource<VehicleResource>> GetVehicles(VehicleQueryResource filterResource)

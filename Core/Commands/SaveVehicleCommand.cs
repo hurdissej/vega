@@ -1,13 +1,11 @@
-using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.ComponentModel.DataAnnotations;
+using System.Threading.Tasks;
 using MediatR;
-using vega.Models;
+using vega.Controllers.Resources;
 
-namespace vega.Controllers.Resources
+namespace vega.Core.Commands
 {
-    public class SaveVehicleResource 
+    public class SaveVehicleCommand : IRequest<Task<int>>
     {
         public int Id { get; set; }
         public int ModelId { get; set; }
