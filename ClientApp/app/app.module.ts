@@ -1,4 +1,4 @@
-import { BroswerXhrWithProgress, ProgressService } from './services/progress-service';
+import { BrowserXhrWithProgress, ProgressService } from './services/progress-service';
 import { BrowserXhr } from '@angular/http';
 import { PhotoService } from './services/photo.service';
 import * as Raven from 'raven-js'
@@ -47,7 +47,7 @@ export const sharedConfig: NgModule = {
     providers: [
         VehicleService,
         PhotoService,
-        {provide: BrowserXhr, useClass: BroswerXhrWithProgress},
+        {provide: BrowserXhr, useClass: BrowserXhrWithProgress},
         ProgressService
     ]
 };
