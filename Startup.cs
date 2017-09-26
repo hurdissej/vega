@@ -17,6 +17,7 @@ using vega.Core.CommandHandlers;
 using FluentValidation.AspNetCore;
 using FluentValidation;
 using vega.Models;
+using vega.Core.Models;
 
 namespace WebApplicationBasic
 {
@@ -39,8 +40,10 @@ namespace WebApplicationBasic
         {
             services.AddMediatR();
             services.AddScoped<IVehicleRepository, VehicleRepository>();
+            services.AddScoped<IPhotoRepository, PhotoRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddAutoMapper();
+            services.Configure<PhotoSettings>(Configuration.GetSection("PhotoSettings"));
             // Add framework services.
             services.AddMvc().AddFluentValidation();
             services.AddSingleton<IValidator<Vehicle>, VehicleValidation>();

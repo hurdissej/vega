@@ -33,6 +33,7 @@ module.exports = (env) => {
                 'font-awesome/css/font-awesome.css',
                 'ng2-toasty',
                 'ng2-toasty/bundles/style-bootstrap.css',
+                '@ng-bootstrap/ng-bootstrap',
                 'jquery',
                 'raven-js',
                 'underscore',

@@ -95,13 +95,20 @@ export class VehicleFormComponent implements OnInit {
   }
 
   submit(){
+    //to do: tidy this up as well
     if(this.vehicle.id){
       this.vehicleService.update(this.vehicle)
-      .subscribe(x => this.handleSuccess(x), error => this.handleError(error))
+      .subscribe(x => {
+        this.handleSuccess(x)
+        this.router.navigate(['/vehicles/' + this.vehicle.id])
+    }, error => this.handleError(error))
     } else {
     delete this.vehicle.id;
     this.vehicleService.create(this.vehicle)
-    .subscribe(x => this.handleSuccess(x), error => this.handleError(error));
+    .subscribe(x => {
+      this.handleSuccess(x)
+      this.router.navigate(['/vehicles'])
+  }, error => this.handleError(error));
   }}
 
   delete() {

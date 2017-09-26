@@ -1,3 +1,6 @@
+import { BroswerXhrWithProgress, ProgressService } from './services/progress-service';
+import { BrowserXhr } from '@angular/http';
+import { PhotoService } from './services/photo.service';
 import * as Raven from 'raven-js'
 import { NgModule, ErrorHandler } from '@angular/core';
 import { RouterModule } from '@angular/router';
@@ -10,6 +13,7 @@ import { ToastyModule } from 'ng2-toasty';
 import { VehicleFormComponent } from './components/vehicle-form/vehicle-form.component';
 import { VehicleListComponent } from './components/vehicle-list/vehicle-list.component';
 import { ViewVehicleComponent } from './components/view-vehicle/view-vehicle.component';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 import { VehicleService } from './services/vehicle.service';
 
@@ -30,17 +34,20 @@ export const sharedConfig: NgModule = {
     ],
     imports: [
         FormsModule,
+        NgbModule.forRoot(),
         ToastyModule.forRoot(),
         RouterModule.forRoot([
             { path: '', redirectTo: 'vehicles', pathMatch: 'full' },
             { path: 'vehicles', component: VehicleListComponent},
             { path: 'vehicles/new', component: VehicleFormComponent},
             { path: 'vehicles/:id', component: ViewVehicleComponent},
-            { path: 'vehicles/edit/:id', component: VehicleFormComponent},
-            { path: '**', redirectTo: 'home' }
+            { path: 'vehicles/edit/:id', component: VehicleFormComponent}
         ])
     ],
     providers: [
-        VehicleService
+        VehicleService,
+        PhotoService,
+        {provide: BrowserXhr, useClass: BroswerXhrWithProgress},
+        ProgressService
     ]
 };

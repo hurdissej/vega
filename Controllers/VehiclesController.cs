@@ -58,8 +58,10 @@ namespace vega.Controllers
             {
                 return NotFound();
             }
+            //To Do: come back and sort this out 
 
-            mapper.Map<SaveVehicleResource, Vehicle>(vehicleResource, vehicle);
+            var command  = mapper.Map<SaveVehicleResource, SaveVehicleCommand>(vehicleResource);
+            mapper.Map<SaveVehicleCommand, Vehicle>(command, vehicle);
             vehicle.LastUpdate = DateTime.Now;
 
             await unitofwork.CompleteAsync();
