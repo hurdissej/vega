@@ -25,7 +25,7 @@ export class ProgressService {
 @Injectable()
 export class BrowserXhrWithProgress extends BrowserXhr {
 
-  constructor(private service: ProgressService) { super(); }
+  constructor(private service: ProgressService) { super(); console.log("Hey mate") }
 
   build(): XMLHttpRequest {
     var xhr: XMLHttpRequest = super.build();
