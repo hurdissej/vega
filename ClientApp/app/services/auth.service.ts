@@ -1,14 +1,20 @@
 // src/app/auth/auth.service.ts
-
+import { error } from 'util';
+import { provideForRootGuard } from '@angular/router/src/router_module';
+import { cache } from 'awesome-typescript-loader/dist/cache';
+import { throws } from 'assert';
+import { throttle } from 'rxjs/operator/throttle';
+import { JwtHelper} from 'angular2-jwt';
 import { Injectable } from "@angular/core";
 import { Router } from "@angular/router";
-import "rxjs/add/operator/filter";
-import * as auth0 from "auth0-js";
+import 'rxjs/add/operator/filter';
+import * as auth0 from 'auth0-js';
 import Auth0Lock from "auth0-lock";
 
 @Injectable()
 export class AuthService {
-  auth0 = new auth0.WebAuth({
+    
+    auth0 = new auth0.WebAuth({
     clientID: "5SJqcua0nXkZlJGAhE11m9pLzFpKfwzD",
     domain: "vega1.eu.auth0.com",
     responseType: "token",
@@ -16,25 +22,32 @@ export class AuthService {
     redirectUri: "http://localhost:5000/vehicles",
     scope: "openid"
   });
-
-  constructor(public router: Router) {}
+  private roles: any = [];
+  constructor(public router: Router) {
+   }
 
   public login(): void {
     this.auth0.authorize();
   }
 
-   public handleAuthentication(): void {
+  public handleAuthentication(): void {
     this.auth0.parseHash((err, authResult) => {
-      console.log("authResult", authResult);
       if (authResult && authResult.accessToken) {
         window.location.hash = "";
         this.setSession(authResult);
         this.router.navigate(["/vehicles"]);
+        this.auth0.client.userInfo(authResult.accessToken, function(err, user) {
+          if(err)
+            throw error;
+          localStorage.setItem('profile', JSON.stringify(user));
+        });   
       } else if (err) {
         this.router.navigate(["/vehicles"]);
         console.log(err);
       }
+ 
     });
+    
   }
 
   private setSession(authResult): void {
@@ -42,10 +55,17 @@ export class AuthService {
     const expiresAt = JSON.stringify(
       authResult.expiresIn * 1000 + new Date().getTime()
     );
-    console.log("setting expires at to:", expiresAt)
     localStorage.setItem("access_token", authResult.accessToken);
     localStorage.setItem("token", authResult.idToken);
+    this.setIdToken(authResult.idToken);  
     localStorage.setItem("expires_at", expiresAt);
+  }
+
+  private setIdToken(idToken){
+    var jwtHelper = new JwtHelper();
+    var decodedToken = jwtHelper.decodeToken(idToken);
+    this.roles = decodedToken.roles;
+    console.log(this.roles);
   }
 
   public logout(): void {
@@ -53,6 +73,7 @@ export class AuthService {
     localStorage.removeItem("access_token");
     localStorage.removeItem("token");
     localStorage.removeItem("expires_at");
+    localStorage.removeItem("profile");
     // Go back to the home route
     this.router.navigate(["/"]);
   }
