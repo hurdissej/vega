@@ -22,12 +22,17 @@ export class AuthService {
     redirectUri: "http://localhost:5000/vehicles",
     scope: "openid"
   });
-  private roles: any = [];
-  constructor(public router: Router) {
-   }
+
+  private userRoles: string[] = []; 
+
+  constructor(public router: Router) {}
 
   public login(): void {
     this.auth0.authorize();
+  }
+
+  public isInRole(name){
+    return this.userRoles.indexOf(name) > -1;
   }
 
   public handleAuthentication(): void {
@@ -44,10 +49,7 @@ export class AuthService {
       } else if (err) {
         this.router.navigate(["/vehicles"]);
         console.log(err);
-      }
- 
-    });
-    
+      }});
   }
 
   private setSession(authResult): void {
@@ -64,8 +66,8 @@ export class AuthService {
   private setIdToken(idToken){
     var jwtHelper = new JwtHelper();
     var decodedToken = jwtHelper.decodeToken(idToken);
-    this.roles = decodedToken.roles;
-    console.log(this.roles);
+    this.userRoles = decodedToken.roles;
+    console.log("The roles are now: ", this.userRoles);
   }
 
   public logout(): void {
@@ -76,6 +78,7 @@ export class AuthService {
     localStorage.removeItem("profile");
     // Go back to the home route
     this.router.navigate(["/"]);
+    this.userRoles = [];
   }
 
   public isAuthenticated(): boolean {
