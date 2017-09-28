@@ -1,3 +1,4 @@
+import { AuthService } from '../../services/auth.service';
 import { BrowserXhr } from '@angular/http';
 import { BrowserXhrWithProgress } from './../../services/progress-service';
 import { Component } from '@angular/core';
@@ -7,7 +8,10 @@ import { Component } from '@angular/core';
     templateUrl: './app.component.html',
     styleUrls: ['./app.component.css'],
     providers: [
-        {provide: BrowserXhr, useClass: BrowserXhrWithProgress},]
+        {provide: BrowserXhr, useClass: BrowserXhrWithProgress}, AuthService]
 })
 export class AppComponent {
+    constructor(public auth: AuthService) {
+        auth.handleAuthentication();
+      }
 }

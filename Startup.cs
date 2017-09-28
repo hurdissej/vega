@@ -44,6 +44,8 @@ namespace WebApplicationBasic
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddAutoMapper();
             services.Configure<PhotoSettings>(Configuration.GetSection("PhotoSettings"));
+            
+
             // Add framework services.
             services.AddMvc().AddFluentValidation();
             services.AddSingleton<IValidator<Vehicle>, VehicleValidation>();
@@ -69,7 +71,13 @@ namespace WebApplicationBasic
             }
 
             app.UseStaticFiles();
-
+            
+            var options = new JwtBearerOptions 
+            {
+                Audience = "https://api.vega.com",
+                Authority = "https://vega1.eu.auth0.com/"
+            };
+            app.UseJwtBearerAuthentication(options);
             app.UseMvc(routes =>
             {
                 routes.MapRoute(

@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using vega.Core.Models;
 using MediatR;
 using vega.Core.Commands;
+using Microsoft.AspNetCore.Authorization;
 
 namespace vega.Controllers
 {
@@ -33,6 +34,7 @@ namespace vega.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> CreateVehicle([FromBody]SaveVehicleResource vehicleResource)
         {
             if (!ModelState.IsValid)
@@ -50,6 +52,7 @@ namespace vega.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize]
         public async Task<IActionResult> UpdateVehicle(int id, [FromBody]SaveVehicleResource vehicleResource)
         {
             var vehicle = await repository.GetVehicle(id);
@@ -73,6 +76,7 @@ namespace vega.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize]
         public async Task<IActionResult> DeleteVehicle(int id)
         {
             var command = new DeleteVehicleCommand{
