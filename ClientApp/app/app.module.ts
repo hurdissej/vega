@@ -1,3 +1,4 @@
+import { AuthGuard } from './services/auth-guard.service';
 import { AdminComponent } from './components/Admin/admin.component';
 import { AuthService } from './services/auth.service';
 import { BrowserXhrWithProgress, ProgressService } from './services/progress-service';
@@ -19,6 +20,8 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 import { VehicleService } from './services/vehicle.service';
 
+import { AUTH_PROVIDERS } from "angular2-jwt/angular2-jwt";
+
 Raven
   .config('https://52391c4e6ace48659ffbda372fb794e0@sentry.io/212508')
   .install();
@@ -35,6 +38,15 @@ export const sharedConfig: NgModule = {
         AdminComponent
 
     ],
+    providers: [
+            AuthGuard,
+            AUTH_PROVIDERS,
+        VehicleService,
+        PhotoService,
+        {provide: BrowserXhr, useClass: BrowserXhrWithProgress},
+        AuthService,
+        ProgressService,
+    ],
     imports: [
         FormsModule,
         NgbModule.forRoot(),
@@ -43,16 +55,10 @@ export const sharedConfig: NgModule = {
             { path: '', redirectTo: 'vehicles', pathMatch: 'full' },
             { path: 'vehicles', component: VehicleListComponent},
             { path: 'vehicles/new', component: VehicleFormComponent},
-            { path: 'admin', component: AdminComponent},
+            { path: 'admin', component: AdminComponent, canActivate: [ AuthGuard ]},
             { path: 'vehicles/:id', component: ViewVehicleComponent},
             { path: 'vehicles/edit/:id', component: VehicleFormComponent}
         ])
     ],
-    providers: [
-        VehicleService,
-        PhotoService,
-        {provide: BrowserXhr, useClass: BrowserXhrWithProgress},
-        AuthService,
-        ProgressService
-    ]
+
 };
