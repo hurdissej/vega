@@ -24,7 +24,6 @@ export class AuthService {
   });
 
   private userRoles: string[] = []; 
-
   constructor(public router: Router) {}
 
   public login(): void {
@@ -59,15 +58,14 @@ export class AuthService {
     );
     localStorage.setItem("access_token", authResult.accessToken);
     localStorage.setItem("token", authResult.idToken);
-    this.setIdToken(authResult.idToken);  
     localStorage.setItem("expires_at", expiresAt);
+    this.setIdToken(authResult.idToken);  
   }
 
   private setIdToken(idToken){
     var jwtHelper = new JwtHelper();
     var decodedToken = jwtHelper.decodeToken(idToken);
     this.userRoles = decodedToken.roles;
-    console.log("The roles are now: ", this.userRoles);
   }
 
   public logout(): void {
@@ -82,8 +80,6 @@ export class AuthService {
   }
 
   public isAuthenticated(): boolean {
-    // Check whether the current time is past the
-    // access token's expiry time
     const expiresAt = JSON.parse(localStorage.getItem("expires_at"));
     return new Date().getTime() < expiresAt;
   }
