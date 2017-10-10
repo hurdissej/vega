@@ -1,4 +1,3 @@
-import { AuthGuard } from './services/auth-guard.service';
 import { AdminComponent } from './components/Admin/admin.component';
 import { AuthService } from './services/auth.service';
 import { BrowserXhrWithProgress, ProgressService } from './services/progress-service';
@@ -39,8 +38,6 @@ export const sharedConfig: NgModule = {
 
     ],
     providers: [
-            AuthGuard,
-            AUTH_PROVIDERS,
         VehicleService,
         PhotoService,
         {provide: BrowserXhr, useClass: BrowserXhrWithProgress},
@@ -55,7 +52,7 @@ export const sharedConfig: NgModule = {
             { path: '', redirectTo: 'vehicles', pathMatch: 'full' },
             { path: 'vehicles', component: VehicleListComponent},
             { path: 'vehicles/new', component: VehicleFormComponent},
-            { path: 'admin', component: AdminComponent, canActivate: [ AuthGuard ]},
+            { path: 'admin', component: AdminComponent},
             { path: 'vehicles/:id', component: ViewVehicleComponent},
             { path: 'vehicles/edit/:id', component: VehicleFormComponent}
         ])
