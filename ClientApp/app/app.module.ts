@@ -40,9 +40,7 @@ export const sharedConfig: NgModule = {
     providers: [
         VehicleService,
         PhotoService,
-        {provide: BrowserXhr, useClass: BrowserXhrWithProgress},
-        AuthService,
-        ProgressService,
+        AUTH_PROVIDERS,
     ],
     imports: [
         FormsModule,

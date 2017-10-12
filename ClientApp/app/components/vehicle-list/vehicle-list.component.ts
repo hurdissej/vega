@@ -1,3 +1,4 @@
+import { AuthService } from './../../services/auth.service';
 import { VehicleService } from './../../services/vehicle.service';
 import { Vehicle, KeyValuePair } from './../../models/vehicle';
 import { Component, OnInit } from '@angular/core';
@@ -24,7 +25,7 @@ export class VehicleListComponent implements OnInit {
     {title: 'Model', key: 'model', isSortable: true},
     { }
   ]
-  constructor(private vehicleService: VehicleService) {
+  constructor(private vehicleService: VehicleService, private auth: AuthService) {
 
    }
 

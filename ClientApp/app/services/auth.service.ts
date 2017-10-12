@@ -1,86 +1,71 @@
-// src/app/auth/auth.service.ts
-import { error } from 'util';
-import { provideForRootGuard } from '@angular/router/src/router_module';
-import { cache } from 'awesome-typescript-loader/dist/cache';
-import { throws } from 'assert';
-import { throttle } from 'rxjs/operator/throttle';
-import { JwtHelper} from 'angular2-jwt';
-import { Injectable } from "@angular/core";
-import { Router } from "@angular/router";
-import 'rxjs/add/operator/filter';
-import * as auth0 from 'auth0-js';
-import Auth0Lock from "auth0-lock";
+import { JwtHelper } from 'angular2-jwt';
+// app/auth.service.ts
+
+import { Injectable }      from '@angular/core';
+import { tokenNotExpired } from 'angular2-jwt';
+
+// Avoid name not found warnings
+import Auth0Lock from 'auth0-lock';
 
 @Injectable()
 export class AuthService {
-    
-    auth0 = new auth0.WebAuth({
-    clientID: "5SJqcua0nXkZlJGAhE11m9pLzFpKfwzD",
-    domain: "vega1.eu.auth0.com",
-    responseType: "token",
-    audience: "https://vega1.eu.auth0.com/userinfo",
-    redirectUri: "http://localhost:5000/vehicles",
-    scope: "openid"
-  });
+  profile: any;
+  private roles: string[] = []; 
 
-  private userRoles: string[] = []; 
-  constructor(public router: Router) {}
+  // Configure Auth0
+  lock = new Auth0Lock('5SJqcua0nXkZlJGAhE11m9pLzFpKfwzD', 'vega1.eu.auth0.com', {});
 
-  public login(): void {
-    this.auth0.authorize();
+  constructor() {    
+    this.readUserFromLocalStorage();
+
+    this.lock.on("authenticated", (authResult) => this.onUserAuthenticated(authResult));
   }
 
-  public isInRole(name){
-    return this.userRoles.indexOf(name) > -1;
+  private onUserAuthenticated(authResult) {
+    console.log(authResult);
+    localStorage.setItem('token', authResult.accessToken);
+
+    this.lock.getUserInfo(authResult.idToken, (error, profile) => {
+      if (error)
+        throw error;
+
+      localStorage.setItem('profile', JSON.stringify(profile));
+
+      this.readUserFromLocalStorage();
+    });
   }
 
-  public handleAuthentication(): void {
-    this.auth0.parseHash((err, authResult) => {
-      if (authResult && authResult.accessToken) {
-        window.location.hash = "";
-        this.setSession(authResult);
-        this.router.navigate(["/vehicles"]);
-        this.auth0.client.userInfo(authResult.accessToken, function(err, user) {
-          if(err)
-            throw error;
-          localStorage.setItem('profile', JSON.stringify(user));
-        });   
-      } else if (err) {
-        this.router.navigate(["/vehicles"]);
-        console.log(err);
-      }});
+  private readUserFromLocalStorage() {
+    this.profile = JSON.parse(localStorage.getItem('profile'));
+
+    var token = localStorage.getItem('token');
+    if (token) {
+      var jwtHelper = new JwtHelper();
+      var decodedToken = jwtHelper.decodeToken(token);
+      this.roles = decodedToken['https://vega.com/roles'] || [];
+    }
   }
 
-  private setSession(authResult): void {
-    // Set the time that the access token will expire at
-    const expiresAt = JSON.stringify(
-      authResult.expiresIn * 1000 + new Date().getTime()
-    );
-    localStorage.setItem("access_token", authResult.accessToken);
-    localStorage.setItem("token", authResult.idToken);
-    localStorage.setItem("expires_at", expiresAt);
-    this.setIdToken(authResult.idToken);  
+  public isInRole(roleName) {
+    return this.roles.indexOf(roleName) > -1;
   }
 
-  private setIdToken(idToken){
-    var jwtHelper = new JwtHelper();
-    var decodedToken = jwtHelper.decodeToken(idToken);
-    this.userRoles = decodedToken.roles;
+  public login() {
+    // Call the show method to display the widget.
+    this.lock.show();
   }
 
-  public logout(): void {
-    // Remove tokens and expiry time from localStorage
-    localStorage.removeItem("access_token");
-    localStorage.removeItem("token");
-    localStorage.removeItem("expires_at");
-    localStorage.removeItem("profile");
-    // Go back to the home route
-    this.router.navigate(["/"]);
-    this.userRoles = [];
+  public authenticated() {
+    // Check if there's an unexpired JWT
+    // This searches for an item in localStorage with key == 'token'
+    return tokenNotExpired('token');
   }
 
-  public isAuthenticated(): boolean {
-    const expiresAt = JSON.parse(localStorage.getItem("expires_at"));
-    return new Date().getTime() < expiresAt;
+  public logout() {
+    // Remove token from localStorage
+    localStorage.removeItem('token');
+    localStorage.removeItem('profile');
+    this.profile = null;
+    this.roles = [];
   }
 }

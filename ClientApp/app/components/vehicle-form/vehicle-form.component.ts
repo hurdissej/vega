@@ -1,3 +1,4 @@
+import { AuthService } from './../../services/auth.service';
 import {Vehicle, SaveVehicle } from './../../models/vehicle';
 import { VehicleService } from './../../services/vehicle.service';
 import { Component, OnInit } from '@angular/core';
@@ -37,7 +38,8 @@ export class VehicleFormComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private vehicleService: VehicleService,
-    private toastyService: ToastyService
+    private toastyService: ToastyService, 
+    private auth: AuthService
     ) {
       route.params.subscribe(p => {
         this.vehicle.id = +p['id'];
