@@ -7,7 +7,7 @@ import * as Raven from 'raven-js';
 import { NgModule, ErrorHandler } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-
+import { ChartModule } from 'angular2-chartjs';
 import { AppComponent } from './components/app/app.component'
 import { NavMenuComponent } from './components/navmenu/navmenu.component';
 import { PaginationComponent } from './components/shared/pagination.component';
@@ -45,6 +45,7 @@ export const sharedConfig: NgModule = {
     imports: [
         FormsModule,
         NgbModule.forRoot(),
+        ChartModule, 
         ToastyModule.forRoot(),
         RouterModule.forRoot([
             { path: '', redirectTo: 'vehicles', pathMatch: 'full' },

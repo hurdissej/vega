@@ -24,13 +24,14 @@ namespace vega.Controllers
         private readonly IMapper mapper;
         private readonly PhotoSettings photoSettings;
         private readonly IPhotoRepository photoRepository;
+        private readonly IPhotoService photoService;
 
-        public PhotosController(IHostingEnvironment host, IPhotoRepository photoRepository, IVehicleRepository repository, IUnitOfWork unitOfWork, IMapper mapper, IOptionsSnapshot<PhotoSettings> options)
+        public PhotosController(IHostingEnvironment host, IPhotoRepository photoRepository, IVehicleRepository repository, IMapper mapper, IOptionsSnapshot<PhotoSettings> options, IPhotoService photoService)
         {
+            this.photoService = photoService;
             this.photoRepository = photoRepository;
             this.photoSettings = options.Value;
             this.mapper = mapper;
-            this.unitOfWork = unitOfWork;
             this.repository = repository;
             this.host = host;
 
@@ -67,30 +68,10 @@ namespace vega.Controllers
             if (!photoSettings.IsSupported(file.FileName))
                 return BadRequest("Invalid File Type");
 
-            // to do: put all of this on MediatR command bus
 
             var uploadsFolderPath = Path.Combine(host.WebRootPath, "Uploads");
-            if (!Directory.Exists(uploadsFolderPath))
-                Directory.CreateDirectory(uploadsFolderPath);
 
-            var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
-            var filePath = Path.Combine(uploadsFolderPath, fileName);
-
-            using (var stream = new FileStream(filePath, FileMode.Create))
-            {
-                await file.CopyToAsync(stream);
-            }
-
-            // Write Method to create thumbnail
-
-            var photo = new Photo
-            {
-                FileName = fileName
-            };
-
-            vehicle.Photos.Add(photo);
-
-            await unitOfWork.CompleteAsync();
+            var photo = await photoService.UploadPhoto(vehicle, file, uploadsFolderPath);
 
             return Ok(mapper.Map<Photo, PhotoResource>(photo));
 
