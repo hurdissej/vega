@@ -36,8 +36,6 @@ namespace vega.Persistence
         {
             var result = new QueryResult<Vehicle>();
             var query = context.Vehicles
-                            .Include(v => v.Features)
-                            .ThenInclude(vf => vf.Feature)
                             .Include(m => m.Model)
                             .ThenInclude(m => m.Make)
                             .AsQueryable();
