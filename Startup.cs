@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.SpaServices.Webpack;
 using Microsoft.Extensions.Configuration;
@@ -29,9 +30,6 @@ namespace WebApplicationBasic
                 .SetBasePath(env.ContentRootPath)
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
                 .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true);
-                
-                if(env.IsDevelopment())
-                    builder = builder.AddUserSecrets<Startup>();
 
                 builder = builder.AddEnvironmentVariables();
             Configuration = builder.Build();
@@ -50,10 +48,16 @@ namespace WebApplicationBasic
             services.AddTransient<IPhotoStorage, FileSystemPhotoStorage>();
             services.AddAutoMapper();
             services.Configure<PhotoSettings>(Configuration.GetSection("PhotoSettings"));
-            
-
-            // Add framework services.
+                    // Add framework services.
             services.AddMvc().AddFluentValidation();
+            
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(options =>
+            {
+                options.Authority = "https://vega1.eu.auth0.com/";
+                options.Audience = "https://api.vega.com";
+            });
+
             services.AddSingleton<IValidator<Vehicle>, VehicleValidation>();
             services.AddDbContext<VegaDbContext>( options => options.UseSqlServer(Configuration["ConnectionStrings:Default"]));
         }
@@ -78,12 +82,8 @@ namespace WebApplicationBasic
 
             app.UseStaticFiles();
             
-            var options = new JwtBearerOptions 
-            {
-                Audience = "https://api.vega.com",
-                Authority = "https://vega1.eu.auth0.com/"
-            };
-            app.UseJwtBearerAuthentication(options);
+            app.UseAuthentication();
+
             app.UseMvc(routes =>
             {
                 routes.MapRoute(
